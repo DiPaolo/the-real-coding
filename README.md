@@ -8,7 +8,7 @@ Telegram: https://t.me/the_real_coding
 
 ### Список примеров
 
-###### [progress_bar.py](./python/progress_bar.py) 
+###### [progress_bar_tqdm.py](./python/progress_bar_tqdm.py) 
 Скрипт, который демонстрирует работу прогресс бара в командной строке, используя пакет tqdm.
 
 ###### [random_user.py](./python/random_user.py) 

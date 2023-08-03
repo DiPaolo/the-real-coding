@@ -22,7 +22,7 @@
 
 import random
 import string
-from time import sleep
+import time
 
 from tqdm import tqdm
 
@@ -35,6 +35,12 @@ def generate_random_filename(length: int) -> str:
     return ''.join(random.choice(string.ascii_letters + string.digits + 15 * '_') for _ in range(0, length))
 
 
+def generate_filenames(n):
+    # генерируем n имен файлов;
+    # каждое имя файла случайной длины от 6 до 16 символов
+    return [f'{generate_random_filename(random.randint(6, 16))}.txt' for _ in range(0, n)]
+
+
 def process_file(filename):
     # имитация обработки;
     # для этого просто засыпаем на рандомное время от 1 до 200 миллисекунд
@@ -43,13 +49,7 @@ def process_file(filename):
     #   - транскодирование файла
     #   - подсчет MD5 чек-суммы
     #   - поиск лиц на изображении и т.д.
-    sleep(random.randint(1, 200) / 1000.0)
-
-
-def generate_filenames(n):
-    # генерируем n имен файлов;
-    # каждое имя файла
-    return [f'{generate_random_filename(random.randint(6, 16))}.txt' for _ in range(0, n)]
+    time.sleep(random.randint(1, 200) / 1000.0)
 
 
 if __name__ == '__main__':
@@ -64,6 +64,7 @@ if __name__ == '__main__':
     for file in files:
         # обрабатываем файл
         process_file(file)
+
         # обновляем прогресс бар (по умолчанию на 1 элемент);
         # прогресс бар при это обновит проценты и свои визуальные деления
         progress_bar.update()
