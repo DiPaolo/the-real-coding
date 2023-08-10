@@ -1,7 +1,7 @@
-import os
+from typing import Optional
 
 from PySide6 import QtGui
-from PySide6.QtCore import QRect, QPoint, Slot, QThread, Signal
+from PySide6.QtCore import QRect, QPoint, Slot, QThread, Signal, QTimer
 from PySide6.QtGui import QColor, QPen
 from PySide6.QtWidgets import QWidget
 
@@ -30,18 +30,22 @@ class FileProcessingWidget(QWidget):
         self._in_progress_color = QColor(0xff, 0xaa, 0x33)
 
         self._dir_name = ''
-        self._file_infos = list()
+        self._file_infos = dict()
         self._total_bytes = 0
+
+        self._timer = None
 
         self.set_dir('')
 
     def set_dir(self, dir_name: str):
         self._dir_name = dir_name
         self._file_infos = get_file_infos(self._dir_name)
-        self._total_bytes = sum(fi.size for fi in self._file_infos)
+        self._total_bytes = sum(fi.size for _, fi in self._file_infos.items())
 
-        self._calc_spans(QRect(QPoint(0, 0), self.size()))
-        self.repaint()
+        self._recalc(QRect(QPoint(0, 0), self.size()))
+
+        if self._dir_name:
+            self._start_process_dir(self._dir_name)
 
     def paintEvent(self, event):
         rect = event.rect()
@@ -54,7 +58,7 @@ class FileProcessingWidget(QWidget):
         pen.setWidth(0)
         qp.setPen(pen)
 
-        for fi in self._file_infos:
+        for _, fi in self._file_infos.items():
             for r in fi.rects:
                 qp.drawRect(r)
 
@@ -67,35 +71,30 @@ class FileProcessingWidget(QWidget):
         self._calc_spans(QRect(QPoint(0, 0), event.size()))
 
     @Slot()
-    def start(self):
-        for fi in self._file_infos:
-            full_filename = fi.full_filename
-            if not os.path.isfile(full_filename):
-                continue
-
-            self._start_process_file(full_filename)
-
-    @Slot()
-    def _start_process_file(self, filename: str):
-        self._stop_process_file()
+    def _start_process_dir(self, dir_name: str):
+        self.stop()
 
         self._thread = QThread()
-        self._worker = FileProcessingWorker(filename)
+        self._worker = FileProcessingWorker(dir_name)
         self._worker.moveToThread(self._thread)
         self._worker.started.connect(self.started)
-        self._worker.finished.connect(self._stop_process_file)
+        self._worker.finished.connect(self.stop)
 
         self._thread.started.connect(self._worker.run)
-        # self._worker.progress.connect(self._update_progress)
+        self._worker.progress.connect(self._update_progress)
 
         self._thread.start()
 
-    @Slot()
-    def stop(self, cleanup=False):
-        pass
+        self._timer = QTimer()
+        self._timer.timeout.connect(self._recalc)
+        self._timer.start(40)
 
     @Slot()
-    def _stop_process_file(self, cleanup=False):
+    def stop(self, cleanup=False):
+        # if self._timer is not None:
+        #     self._timer.stop()
+        #     self._timer = None
+
         if self._worker is not None:
             self._worker.stop()
             self._worker = None
@@ -109,7 +108,22 @@ class FileProcessingWidget(QWidget):
         if not cleanup:
             self.finished.emit()
 
+    @Slot()
+    def _update_progress(self, filename: str, progress: float):
+        # print(f'{filename}: {progress:0.2f}%')
+        self._file_infos[filename].processing_progress = progress
+
+    @Slot()
+    def _recalc(self, rect: Optional[QRect] = None):
+        # print('recalc')
+        self._calc_spans(rect)
+        self.repaint()
+        self.update()
+
     def _calc_spans(self, window_rect: QRect):
+        if window_rect is None:
+            window_rect = self.rect()
+
         rows = window_rect.height() // self._cell_height
 
         # calculate number of bytes per 1pix
@@ -120,7 +134,7 @@ class FileProcessingWidget(QWidget):
         file_num = 0
         cur_line_num = 0
         next_start_pt = window_rect.topLeft() + QPoint(self._indent, self._indent)
-        for fi in self._file_infos:
+        for _, fi in self._file_infos.items():
             file_len_pix = max(fi.size / bytes_per_pix, 1)
             file_processing_status_pix = file_len_pix * fi.processing_progress / 100.0
 

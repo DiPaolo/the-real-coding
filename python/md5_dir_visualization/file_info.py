@@ -1,7 +1,7 @@
 import os
 import random
 from dataclasses import dataclass
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Dict
 
 from PySide6.QtCore import QRect
 from PySide6.QtGui import QColor
@@ -17,8 +17,8 @@ class FileInfo:
     processing_progress: float
 
 
-def get_file_infos(dir_name: str) -> List[FileInfo]:
-    file_infos = list()
+def get_file_infos(dir_name: str) -> Dict[str, FileInfo]:
+    file_infos = dict()
 
     if not os.path.isdir(dir_name):
         return file_infos
@@ -32,6 +32,6 @@ def get_file_infos(dir_name: str) -> List[FileInfo]:
         if not os.path.isfile(full_filename):
             continue
 
-        file_infos.append(FileInfo(full_filename, os.stat(full_filename).st_size, None, list(), list(), 0))
+        file_infos[full_filename] = FileInfo(full_filename, os.stat(full_filename).st_size, None, list(), list(), 0)
 
     return file_infos
