@@ -85,7 +85,9 @@ class FileProcessingWorker(QObject):
 
                     progress = cur_file_pos * 100.0 / file_size
                     # print(f'{cur_file_pos}/{file_size} ({int(progress)}%) - {calculated_value}')
-                    self.progress.emit(full_filename, progress)
+                    # self.progress.emit(full_filename, progress)
+
+                self.progress.emit(full_filename, 100)
 
                 # print(f'------- {calculated_value} --------')
             else:

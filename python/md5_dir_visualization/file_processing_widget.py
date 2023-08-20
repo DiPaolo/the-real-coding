@@ -87,7 +87,7 @@ class FileProcessingWidget(QWidget):
 
         self._timer = QTimer()
         self._timer.timeout.connect(self._recalc)
-        self._timer.start(40)
+        self._timer.start(1000)
 
     @Slot()
     def stop(self, cleanup=False):

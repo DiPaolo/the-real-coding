@@ -87,39 +87,6 @@ class MainWindow(QMainWindow):
 
         settings.set_settings_list_value(SettingsKey.RECENT_CHOSEN_DIRS, self._get_recent_dirs_from_combo())
 
-    # @Slot()
-    # def _start(self):
-    #     self._stop()
-    #
-    #     self._thread = QThread()
-    #     self._worker = FileProcessingWorker(self.ui.recent_dirs.currentText())
-    #     self._worker.moveToThread(self._thread)
-    #
-    #     self._thread.started.connect(self._worker.run)
-    #     self._worker.started.connect(self._on_started)
-    #     self._worker.finished.connect(self._on_finished)
-    #     # self._worker.progress.connect(self._update_progress)
-    #
-    #     self._thread.start()
-    #
-    # @Slot()
-    # def _stop(self):
-    #     if self._worker is not None:
-    #         print('self._worker.stop()')
-    #         self._worker.stop()
-    #         print('self._worker = None')
-    #         self._worker.deleteLater()
-    #         self._worker = None
-    #
-    #     if self._thread is not None:
-    #         print('self._thread.quit()')
-    #         self._thread.quit()
-    #         print('self._thread.wait()')
-    #         self._thread.wait()
-    #         print('self._thread = None')
-    #         self._thread.deleteLater()
-    #         self._thread = None
-
     @Slot()
     def _update_progress(self, progress: int):
         self.ui.statusbar.setText(f'{progress:.1f}%')
