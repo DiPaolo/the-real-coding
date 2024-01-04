@@ -27,3 +27,8 @@ Telegram: https://t.me/the_real_coding
 Утилита, которая запускает N потоков с рандомной длительностью, и отображает их статус в UI.
 
 Инструменты: ```Python```, ```PySide```, ```многопоточность```, ```random```
+
+###### [brute_force_password_imitation](./python/brute_force_password_imitation.py)
+Имитация подбора пароля в терминале.
+
+Инструменты: ```Python```
