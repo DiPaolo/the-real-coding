@@ -32,3 +32,8 @@ Telegram: https://t.me/the_real_coding
 Имитация подбора пароля в терминале.
 
 Инструменты: ```Python```
+
+###### [simplest_web_server](./python/simplest_web_server/simplest_web_server.py)
+Простой но рабочий веб-сервер своими руками.
+
+Инструменты: ```Python```, ```HTTPServer```, ```сервер```
