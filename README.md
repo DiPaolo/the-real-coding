@@ -34,6 +34,11 @@ Telegram: https://t.me/the_real_coding
 Инструменты: ```Python```
 
 ###### [simplest_web_server](./python/simplest_web_server/simplest_web_server.py)
-Простой но рабочий веб-сервер своими руками.
+Простой, но рабочий веб-сервер своими руками.
 
 Инструменты: ```Python```, ```HTTPServer```, ```сервер```
+
+###### [simplest_web_server_ext/simplest_web_server_calendar.py](./python/simplest_web_server_ext/simplest_web_server_calendar.py)
+Все еще простой веб-сервер + некоторая логика: показываем календарь на текущий месяц.
+
+Инструменты: ```Python```, ```HTTPServer```, ```сервер```, ```calendar```
