@@ -8,10 +8,10 @@ import requests
 Handler = http.server.SimpleHTTPRequestHandler
 
 
-def get_public_holidays() -> List[datetime.date]:
+def get_public_holidays(year: int) -> List[datetime.date]:
     out = list()
 
-    res = requests.get('https://date.nager.at/api/v3/PublicHolidays/2024/ru')
+    res = requests.get(f'https://date.nager.at/api/v3/PublicHolidays/{year}/ru')
     if not res.ok:
         return out
 
@@ -24,7 +24,8 @@ def get_public_holidays() -> List[datetime.date]:
     return out
 
 
-PUBLIC_HOLIDAYS = get_public_holidays()
+TODAY = datetime.datetime.now()
+PUBLIC_HOLIDAYS = get_public_holidays(TODAY.year)
 
 
 def get_days_in_month(year, month):
@@ -49,7 +50,7 @@ def get_month_str(year: int, month: int) -> str:
                    'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
 
     out += '<table>'
-    out += f'  <caption>{month_names[month - 1]} {year}</caption>'
+    out += f'  <caption>{month_names[month - 1]}</caption>'
     out += '  <thead>'
     out += '    <tr>'
 
@@ -97,8 +98,6 @@ def get_month_str(year: int, month: int) -> str:
 
 class HelloWorldServer(BaseHTTPRequestHandler):
     def do_GET(self):
-        today = datetime.datetime.today()
-
         # добавляем в наш HTML-код страницы пункт, указывающий, какая кодировка
         # используется на странице:
         #   <meta charset="UTF-8">
@@ -114,7 +113,7 @@ class HelloWorldServer(BaseHTTPRequestHandler):
                     <meta charset="UTF-8">
                 </head>
                 <body>
-                    <h1 align='center'>Календарь</h1>
+                    <h1 align='center'>Календарь {TODAY.year}</h1>
             """
 
         html_page += '<center><table>'
@@ -124,7 +123,7 @@ class HelloWorldServer(BaseHTTPRequestHandler):
             html_page += '<tr>'
 
             for j in range(0, 4):
-                html_page += f"<td style='padding: 20px;'>{get_month_str(today.year, cur_month)}</td>"
+                html_page += f"<td style='padding: 20px;'>{get_month_str(TODAY.year, cur_month)}</td>"
                 cur_month += 1
 
             html_page += '</tr>'
