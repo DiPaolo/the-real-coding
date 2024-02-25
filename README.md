@@ -48,3 +48,8 @@ Telegram: https://t.me/the_real_coding
 день, а также используем русские названия дней недели и месяцев.
 
 Инструменты: ```Python```, ```HTTPServer```, ```сервер```, ```calendar```
+
+###### [simplest_web_server_ext/simplest_web_server_calendar_full_year_with_public_holidays.py](./python/simplest_web_server_ext/simplest_web_server_calendar_full_year_with_public_holidays.py)
+Такой же сервер, как и предыдущий, но дополнительно по АПИ дергаются праздники и выделяются красным цветом.
+
+Инструменты: ```Python```, ```HTTPServer```, ```сервер```, ```calendar```, ```API```
