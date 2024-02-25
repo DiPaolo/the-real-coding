@@ -57,11 +57,12 @@ def get_month_str(year: int, month: int) -> str:
 
                 style_tag = f" style='{style}'" if style != '' else ''
                 out += f"      <td align='right'{style_tag}>{cur_day.day}</td>"
-                cur_day += datetime.timedelta(days=1)
 
-            if cur_day.day == days_in_month:
-                done = True
-                break
+                if cur_day.day == days_in_month:
+                    done = True
+                    break
+                else:
+                    cur_day += datetime.timedelta(days=1)
 
         is_first_line = False
         out += '    </tr>'
