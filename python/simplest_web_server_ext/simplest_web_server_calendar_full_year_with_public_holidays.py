@@ -123,7 +123,7 @@ class HelloWorldServer(BaseHTTPRequestHandler):
             html_page += '<tr>'
 
             for j in range(0, 4):
-                html_page += f"<td style='padding: 20px;'>{get_month_str(TODAY.year, cur_month)}</td>"
+                html_page += f"<td style='padding: 20px; vertical-align: top;'>{get_month_str(TODAY.year, cur_month)}</td>"
                 cur_month += 1
 
             html_page += '</tr>'
