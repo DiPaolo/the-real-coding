@@ -44,7 +44,7 @@ Telegram: https://t.me/the_real_coding
 Инструменты: ```Python```, ```HTTPServer```, ```сервер```, ```calendar```
 
 ###### [simplest_web_server_ext/simplest_web_server_calendar_full_year.py](./python/simplest_web_server_ext/simplest_web_server_calendar_full_year.py)
-По-прежнему простенкький веб-сервер с календарем, но теперь: показываем весь календарный год, текущий
+По-прежнему простенький веб-сервер с календарем, но теперь: показываем весь календарный год, текущий
 день, а также используем русские названия дней недели и месяцев.
 
 Инструменты: ```Python```, ```HTTPServer```, ```сервер```, ```calendar```
