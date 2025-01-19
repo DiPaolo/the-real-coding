@@ -1,6 +1,66 @@
 import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+today = datetime.datetime.today()
+
+EVENTS = [
+    # tomorrow
+    {
+        'datetime': today + datetime.timedelta(hours=9),
+        'title': 'встреча в 09:00'
+    },
+    {
+        'datetime': today + datetime.timedelta(hours=10),
+        'title': 'встреча в 10:00'
+    },
+    {
+        'datetime': today + datetime.timedelta(hours=11),
+        'title': 'встреча в 11:00'
+    },
+    {
+        'datetime': today + datetime.timedelta(hours=12),
+        'title': 'встреча в 12:00'
+    },
+    {
+        'datetime': today + datetime.timedelta(hours=13),
+        'title': 'встреча в 13:00'
+    },
+    {
+        'datetime': today + datetime.timedelta(hours=14),
+        'title': 'встреча в 14:00'
+    },
+    {
+        'datetime': today + datetime.timedelta(hours=15),
+        'title': 'встреча в 15:00'
+    },
+    {
+        'datetime': today + datetime.timedelta(hours=16),
+        'title': 'встреча в 16:00'
+    },
+    {
+        'datetime': today + datetime.timedelta(hours=17),
+        'title': 'встреча в 17:00'
+    },
+    # the day after tomorrow
+    {
+        'datetime': today + datetime.timedelta(days=1, hours=12),
+        'title': 'встреча в 12:00'
+    },
+    {
+        'datetime': today + datetime.timedelta(days=1, hours=17),
+        'title': 'встреча в 17:00'
+    },
+    # 2 days later
+    {
+        'datetime': today + datetime.timedelta(days=2, hours=14),
+        'title': 'встреча в 14:00'
+    },
+    # in a week
+    {
+        'datetime': today + datetime.timedelta(days=7, hours=11),
+        'title': 'встреча в 11:00'
+    }
+]
 
 def get_days_in_month(year, month):
     if month == 2:
