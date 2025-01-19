@@ -53,3 +53,8 @@ Telegram: https://t.me/the_real_coding
 Такой же сервер, как и предыдущий, но дополнительно по АПИ дергаются праздники и выделяются красным цветом.
 
 Инструменты: ```Python```, ```HTTPServer```, ```сервер```, ```calendar```, ```API```, ```requests```
+
+###### [simplest_web_server_shared_calendar](./python/simplest_web_server_shared_calendar)
+Календарь, который позволяет выбирать свободные слоты и договариваться о свободном времени для событий между людьми.
+
+Инструменты: ```Python```, ```HTTPServer```, ```сервер```, ```calendar```, ```API```, ```requests```
