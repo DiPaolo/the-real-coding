@@ -1,7 +1,8 @@
 import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-today = datetime.datetime.today()
+now = datetime.datetime.now() + datetime.timedelta(days=0)
+today = datetime.datetime(now.year, now.month, now.day, 0, 0, 0)
 
 EVENTS = [
     # tomorrow
@@ -62,6 +63,10 @@ EVENTS = [
     }
 ]
 
+# every hour 9-18
+SLOTS_IN_DAY = 9
+
+
 def get_days_in_month(year, month):
     if month == 2:
         if year % 4 == 0 or year % 100 == 0 and year % 400 == 0:
@@ -75,9 +80,10 @@ def get_days_in_month(year, month):
 
 
 def get_month_str(year: int, month: int) -> str:
+    today = datetime.datetime.today()
     out = ''
 
-    cur_day = datetime.datetime(year, month, 1)
+    cur_day = datetime.datetime(year, month, 1, hour=0, minute=0, second=0)
     start_weekday = cur_day.weekday()
 
     month_names = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль',
@@ -89,7 +95,7 @@ def get_month_str(year: int, month: int) -> str:
     out += '    <tr>'
 
     for day in ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']:
-        out += f'    <th>{day}</th>'
+        out += f"    <th style='width: 28px;'>{day}</th>"
 
     out += '    </tr>'
     out += '  </thead>'
@@ -99,21 +105,41 @@ def get_month_str(year: int, month: int) -> str:
     done = False
     out += '  <tbody>'
     while not done:
-        out += '    <tr>'
+        out += "    <tr style='height: 30px'>"
         for i in range(0, 7):
             if is_first_line and start_weekday != 0 and i < start_weekday:
                 out += '      <td></td>'
             else:
+                # get count of free slots for this day
+                free_slots = SLOTS_IN_DAY
+                for event in EVENTS:
+                    if event['datetime'].year == cur_day.year and \
+                       event['datetime'].month == cur_day.month and \
+                       event['datetime'].day == cur_day.day:
+                        free_slots -= 1
+
                 is_weekend_day = cur_day.weekday() in [5, 6]
 
-                style = ''
-                if is_weekend_day:
-                    style += ' color: red;'
-                if cur_day.date() == datetime.datetime.today().date():
-                    style += ' border-style: double;'
+                color = ''
+                suffix = ''
+                padding_right = 10 if free_slots == SLOTS_IN_DAY else 4
 
-                style_tag = f" style='{style}'" if style != '' else ''
-                out += f"      <td align='right'{style_tag}>{cur_day.day}</td>"
+                if cur_day < today:
+                    color = 'lightgrey'
+                else:
+                    if free_slots == 0:
+                        color = 'lightpink' if is_weekend_day else 'lightgrey'
+                    else:
+                        color = 'red' if is_weekend_day else 'black'
+                        if free_slots != SLOTS_IN_DAY:
+                            suffix = f"<sup style='font-size: 12px;'>{free_slots}</sup>"
+
+                border_style = ''
+                if cur_day.date() == datetime.datetime.today().date():
+                    border_style = 'border-style: double;'
+                    padding_right = 6
+
+                out += f"      <td align='right' style='color: {color}; padding: 0px {padding_right}px 0px 0px; {border_style}'>{cur_day.day}{suffix}</td>"
 
                 if cur_day.day == days_in_month:
                     done = True
