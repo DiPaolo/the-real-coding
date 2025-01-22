@@ -1,7 +1,8 @@
 import datetime
 import re
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
+
 
 now = datetime.datetime.now() + datetime.timedelta(days=0)
 today = datetime.datetime(now.year, now.month, now.day, 0, 0, 0)
@@ -81,6 +82,13 @@ def get_days_in_month(year, month):
         return 30
 
 
+def book_slot(year: int, month: int, day: int, hour: int, title: str):
+    EVENTS.append({
+        'datetime': datetime.datetime(year, month, day, hour),
+        'title': title
+    })
+
+
 def get_month_str(year: int, month: int) -> str:
     today = datetime.datetime.today()
     out = ''
@@ -116,8 +124,8 @@ def get_month_str(year: int, month: int) -> str:
                 free_slots = SLOTS_IN_DAY
                 for event in EVENTS:
                     if event['datetime'].year == cur_day.year and \
-                       event['datetime'].month == cur_day.month and \
-                       event['datetime'].day == cur_day.day:
+                            event['datetime'].month == cur_day.month and \
+                            event['datetime'].day == cur_day.day:
                         free_slots -= 1
 
                 is_weekend_day = cur_day.weekday() in [5, 6]
@@ -177,6 +185,21 @@ class HelloWorldServer(BaseHTTPRequestHandler):
                 month = int(res.groups()[1])
                 day = int(res.groups()[2])
                 self.show_date_page(year, month, day)
+            else:
+                res = re.match(r'^\/(\d+)\/(\d+)\/(\d+)\/(\d+)\/book$', parsed_path.path)
+                if res is not None and len(res.groups()) == 4:
+                    year = int(res.groups()[0])
+                    month = int(res.groups()[1])
+                    day = int(res.groups()[2])
+                    hour = int(res.groups()[3])
+
+                    if parsed_path.query == '':
+                        self.show_book_slot_page(year, month, day, hour)
+                    else:
+                        queries = parse_qs(parsed_path.query)
+                        if 'title' in queries:
+                            book_slot(year, month, day, hour, queries['title'][0])
+                            self.show_date_page(year, month, day)
 
     def show_main_page(self):
         today = datetime.datetime.today()
@@ -257,9 +280,22 @@ class HelloWorldServer(BaseHTTPRequestHandler):
                     event_name = ev['title']
 
             html_page += \
-                f"""
+                """
                 <tr>
-                    <td>{i:02}:00-{i+1:02}:00</td>
+                    <td>
+                """
+
+            if event_name == '':
+                html_page += f"<a href='/{year:04}/{month:02}/{day:02}/{i:02}/book'>"
+
+            html_page += f'{i:02}:00-{i + 1:02}:00'
+
+            if event_name == '':
+                html_page += '</a>'
+
+            html_page += \
+                f"""
+                    </td>
                     <td>{event_name}</td>
                 </tr>
                 """
@@ -268,6 +304,67 @@ class HelloWorldServer(BaseHTTPRequestHandler):
             """
 
                         </table>
+                    </center>
+                </body>
+            </html>
+            """
+
+        body = html_page.encode('UTF-8', 'replace')
+
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+
+        self.wfile.write(body)
+
+    def show_book_slot_page(self, year: int, month: int, day: int, hour: int):
+        html_page = ''
+
+        html_page += \
+            f"""
+            <html>
+                <head>
+                    <title>Hello, World!</title>
+                    <meta charset="UTF-8">
+                </head>
+                <body>
+                    <h1 align='center'>Добавить событие</h1>
+                    <p align='center'><b>Дата</b>: {day:02}.{month:02}.{year:04}
+                    <p align='center'><b>Время</b>: {hour:02}:00-{hour + 1:02}:00
+            """
+
+        html_page += \
+            """
+            <center>
+                <form>
+                    <label for="title">Название:</label><input type="text" id="title" name="title"><br>
+                    <input type="submit" value="Добавить">
+            """
+
+        # today_events = list()
+        # for ev in EVENTS:
+        #     if ev['datetime'].year == year and ev['datetime'].month == month and ev['datetime'].day == day:
+        #         today_events.append(ev)
+        #
+        # for i in range(9, 18):
+        #     event_name = ''
+        #     for ev in today_events:
+        #         if ev['datetime'].hour == i:
+        #             event_name = ev['title']
+        #
+        #     html_page += \
+        #         f"""
+        #         <tr>
+        #             <td>{i:02}:00-{i+1:02}:00</td>
+        #             <td>{event_name}</td>
+        #         </tr>
+        #         """
+
+        html_page += \
+            """
+
+                        </form>
                     </center>
                 </body>
             </html>
