@@ -1,5 +1,7 @@
 import datetime
+import re
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import urlparse
 
 now = datetime.datetime.now() + datetime.timedelta(days=0)
 today = datetime.datetime(now.year, now.month, now.day, 0, 0, 0)
@@ -161,6 +163,13 @@ class HelloWorldServer(BaseHTTPRequestHandler):
         parsed_path = urlparse(self.path)
         if parsed_path.path == '/':
             self.show_main_page()
+        else:
+            res = re.match(r'^\/(\d+)\/(\d+)\/(\d+)$', parsed_path.path)
+            if res is not None and len(res.groups()) == 3:
+                year = int(res.groups()[0])
+                month = int(res.groups()[1])
+                day = int(res.groups()[2])
+                self.show_date_page(year, month, day)
 
     def show_main_page(self):
         today = datetime.datetime.today()
@@ -194,6 +203,59 @@ class HelloWorldServer(BaseHTTPRequestHandler):
                 cur_month += 1
 
             html_page += '</tr>'
+
+        html_page += \
+            """
+
+                        </table>
+                    </center>
+                </body>
+            </html>
+            """
+
+        body = html_page.encode('UTF-8', 'replace')
+
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+
+        self.wfile.write(body)
+
+    def show_date_page(self, year: int, month: int, day: int):
+        html_page = ''
+
+        html_page += \
+            f"""
+            <html>
+                <head>
+                    <title>Hello, World!</title>
+                    <meta charset="UTF-8">
+                </head>
+                <body>
+                    <h1 align='center'>{day:02}.{month:02}.{year:04}</h1>
+            """
+
+        html_page += '<center><table>'
+
+        today_events = list()
+        for ev in EVENTS:
+            if ev['datetime'].year == year and ev['datetime'].month == month and ev['datetime'].day == day:
+                today_events.append(ev)
+
+        for i in range(9, 18):
+            event_name = ''
+            for ev in today_events:
+                if ev['datetime'].hour == i:
+                    event_name = ev['title']
+
+            html_page += \
+                f"""
+                <tr>
+                    <td>{i:02}:00-{i+1:02}:00</td>
+                    <td>{event_name}</td>
+                </tr>
+                """
 
         html_page += \
             """
