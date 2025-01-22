@@ -158,6 +158,11 @@ def get_month_str(year: int, month: int) -> str:
 
 class HelloWorldServer(BaseHTTPRequestHandler):
     def do_GET(self):
+        parsed_path = urlparse(self.path)
+        if parsed_path.path == '/':
+            self.show_main_page()
+
+    def show_main_page(self):
         today = datetime.datetime.today()
 
         # добавляем в наш HTML-код страницы пункт, указывающий, какая кодировка
