@@ -141,7 +141,14 @@ def get_month_str(year: int, month: int) -> str:
                     border_style = 'border-style: double;'
                     padding_right = 6
 
-                out += f"      <td align='right' style='color: {color}; padding: 0px {padding_right}px 0px 0px; {border_style}'>{cur_day.day}{suffix}</td>"
+                style = f'color: {color}; padding: 0px {padding_right}px 0px 0px; {border_style}'
+                out += f"<td align='right' style='{style}'>"
+                if cur_day >= today and free_slots > 0:
+                    out += f"<a href='/{cur_day.year:04}/{cur_day.month:02}/{cur_day.day:02}'>"
+                out += f'{cur_day.day}{suffix}'
+                if cur_day >= today and free_slots > 0:
+                    out += '</a>'
+                out += '</td>'
 
                 if cur_day.day == days_in_month:
                     done = True
