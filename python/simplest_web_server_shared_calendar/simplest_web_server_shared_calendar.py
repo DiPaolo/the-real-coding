@@ -3,66 +3,134 @@ import re
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 
-
 now = datetime.datetime.now() + datetime.timedelta(days=0)
 today = datetime.datetime(now.year, now.month, now.day, 0, 0, 0)
 
-EVENTS = [
-    # tomorrow
+USERS = [
     {
-        'datetime': today + datetime.timedelta(hours=9),
-        'title': 'встреча в 09:00'
+        'name': 'DiPaolo',
+        'id': '5hb4b2ce',
+        'events': [
+            # tomorrow
+            {
+                'datetime': today + datetime.timedelta(hours=9),
+                'title': 'встреча в 09:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=10),
+                'title': 'встреча в 10:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=11),
+                'title': 'встреча в 11:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=12),
+                'title': 'встреча в 12:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=13),
+                'title': 'встреча в 13:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=14),
+                'title': 'встреча в 14:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=15),
+                'title': 'встреча в 15:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=16),
+                'title': 'встреча в 16:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=17),
+                'title': 'встреча в 17:00'
+            },
+            # the day after tomorrow
+            {
+                'datetime': today + datetime.timedelta(days=1, hours=12),
+                'title': 'встреча в 12:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(days=1, hours=17),
+                'title': 'встреча в 17:00'
+            },
+            # 2 days later
+            {
+                'datetime': today + datetime.timedelta(days=2, hours=14),
+                'title': 'встреча в 14:00'
+            },
+            # in a week
+            {
+                'datetime': today + datetime.timedelta(days=7, hours=11),
+                'title': 'встреча в 11:00'
+            }
+        ]
     },
     {
-        'datetime': today + datetime.timedelta(hours=10),
-        'title': 'встреча в 10:00'
-    },
-    {
-        'datetime': today + datetime.timedelta(hours=11),
-        'title': 'встреча в 11:00'
-    },
-    {
-        'datetime': today + datetime.timedelta(hours=12),
-        'title': 'встреча в 12:00'
-    },
-    {
-        'datetime': today + datetime.timedelta(hours=13),
-        'title': 'встреча в 13:00'
-    },
-    {
-        'datetime': today + datetime.timedelta(hours=14),
-        'title': 'встреча в 14:00'
-    },
-    {
-        'datetime': today + datetime.timedelta(hours=15),
-        'title': 'встреча в 15:00'
-    },
-    {
-        'datetime': today + datetime.timedelta(hours=16),
-        'title': 'встреча в 16:00'
-    },
-    {
-        'datetime': today + datetime.timedelta(hours=17),
-        'title': 'встреча в 17:00'
-    },
-    # the day after tomorrow
-    {
-        'datetime': today + datetime.timedelta(days=1, hours=12),
-        'title': 'встреча в 12:00'
-    },
-    {
-        'datetime': today + datetime.timedelta(days=1, hours=17),
-        'title': 'встреча в 17:00'
-    },
-    # 2 days later
-    {
-        'datetime': today + datetime.timedelta(days=2, hours=14),
-        'title': 'встреча в 14:00'
-    },
-    # in a week
-    {
-        'datetime': today + datetime.timedelta(days=7, hours=11),
-        'title': 'встреча в 11:00'
+        'name': 'Joshua',
+        'id': '88jl3hsn',
+        'events': [
+            # yesterday
+            {
+                'datetime': today + datetime.timedelta(days=-1, hours=13),
+                'title': 'встреча в 13:00'
+            },
+            # today
+            {
+                'datetime': today + datetime.timedelta(hours=9),
+                'title': 'встреча в 09:00'
+            },
+            # tomorrow
+            {
+                'datetime': today + datetime.timedelta(hours=9),
+                'title': 'встреча в 09:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=10),
+                'title': 'встреча в 10:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=11),
+                'title': 'встреча в 11:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=12),
+                'title': 'встреча в 12:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=13),
+                'title': 'встреча в 13:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=14),
+                'title': 'встреча в 14:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=15),
+                'title': 'встреча в 15:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=16),
+                'title': 'встреча в 16:00'
+            },
+            {
+                'datetime': today + datetime.timedelta(hours=17),
+                'title': 'встреча в 17:00'
+            },
+            # 2 days later
+            {
+                'datetime': today + datetime.timedelta(days=2, hours=14),
+                'title': 'встреча в 14:00'
+            },
+            # in a month+
+            {
+                'datetime': today + datetime.timedelta(days=37, hours=11),
+                'title': 'встреча в 11:00'
+            }
+        ]
     }
 ]
 
@@ -82,14 +150,22 @@ def get_days_in_month(year, month):
         return 30
 
 
-def book_slot(year: int, month: int, day: int, hour: int, title: str):
-    EVENTS.append({
-        'datetime': datetime.datetime(year, month, day, hour),
-        'title': title
-    })
+def book_slot(user_id: str, year: int, month: int, day: int, hour: int, title: str):
+    for user in USERS:
+        if user['id'] == user_id:
+            user['events'].append({
+                'datetime': datetime.datetime(year, month, day, hour),
+                'title': title
+            })
+            break
 
 
-def get_month_str(year: int, month: int) -> str:
+def get_month_str(user_id: str, year: int, month: int) -> str:
+    events = list()
+    for user in USERS:
+        if user['id'] == user_id:
+            events = user['events']
+
     today = datetime.datetime.today()
     out = ''
 
@@ -122,7 +198,7 @@ def get_month_str(year: int, month: int) -> str:
             else:
                 # get count of free slots for this day
                 free_slots = SLOTS_IN_DAY
-                for event in EVENTS:
+                for event in events:
                     if event['datetime'].year == cur_day.year and \
                             event['datetime'].month == cur_day.month and \
                             event['datetime'].day == cur_day.day:
@@ -152,7 +228,7 @@ def get_month_str(year: int, month: int) -> str:
                 style = f'color: {color}; padding: 0px {padding_right}px 0px 0px; {border_style}'
                 out += f"<td align='right' style='{style}'>"
                 if cur_day >= today and free_slots > 0:
-                    out += f"<a href='/{cur_day.year:04}/{cur_day.month:02}/{cur_day.day:02}'>"
+                    out += f"<a href='/{user_id}/{cur_day.year:04}/{cur_day.month:02}/{cur_day.day:02}'>"
                 out += f'{cur_day.day}{suffix}'
                 if cur_day >= today and free_slots > 0:
                     out += '</a>'
@@ -179,29 +255,75 @@ class HelloWorldServer(BaseHTTPRequestHandler):
         if parsed_path.path == '/':
             self.show_main_page()
         else:
-            res = re.match(r'^\/(\d+)\/(\d+)\/(\d+)$', parsed_path.path)
-            if res is not None and len(res.groups()) == 3:
-                year = int(res.groups()[0])
-                month = int(res.groups()[1])
-                day = int(res.groups()[2])
-                self.show_date_page(year, month, day)
+            res = re.match(r'^\/([\w|\d]{8})$', parsed_path.path)
+            if res is not None and len(res.groups()) == 1:
+                user_id = res.groups()[0]
+                self.show_user_main_page(user_id)
             else:
-                res = re.match(r'^\/(\d+)\/(\d+)\/(\d+)\/(\d+)\/book$', parsed_path.path)
+                res = re.match(r'^\/([\w|\d]{8})\/(\d+)\/(\d+)\/(\d+)$', parsed_path.path)
                 if res is not None and len(res.groups()) == 4:
-                    year = int(res.groups()[0])
-                    month = int(res.groups()[1])
-                    day = int(res.groups()[2])
-                    hour = int(res.groups()[3])
+                    user_id = res.groups()[0]
+                    year = int(res.groups()[1])
+                    month = int(res.groups()[2])
+                    day = int(res.groups()[3])
+                    self.show_date_page(user_id, year, month, day)
+                else:
+                    res = re.match(r'^\/([\w|\d]{8})\/(\d+)\/(\d+)\/(\d+)\/(\d+)\/book$', parsed_path.path)
+                    if res is not None and len(res.groups()) == 5:
+                        user_id = res.groups()[0]
+                        year = int(res.groups()[1])
+                        month = int(res.groups()[2])
+                        day = int(res.groups()[3])
+                        hour = int(res.groups()[4])
 
-                    if parsed_path.query == '':
-                        self.show_book_slot_page(year, month, day, hour)
-                    else:
-                        queries = parse_qs(parsed_path.query)
-                        if 'title' in queries:
-                            book_slot(year, month, day, hour, queries['title'][0])
-                            self.show_date_page(year, month, day)
+                        if parsed_path.query == '':
+                            self.show_book_slot_page(user_id, year, month, day, hour)
+                        else:
+                            queries = parse_qs(parsed_path.query)
+                            if 'title' in queries:
+                                book_slot(user_id, year, month, day, hour, queries['title'][0])
+                                self.show_date_page(user_id, year, month, day)
 
     def show_main_page(self):
+        html_page = \
+            f"""
+            <html>
+                <head>
+                    <title>Hello, World!</title>
+                    <meta charset="UTF-8">
+                </head>
+                <body>
+                    <h1 align='center'>Календари</h1>
+            """
+
+        html_page += '<div align="center">'
+
+        for user in USERS:
+            html_page += f"<a href='/{user['id']}'>{user['name']}</a><br>"
+
+        html_page += \
+            """
+                    </div>
+                </body>
+            </html>
+            """
+
+        body = html_page.encode('UTF-8', 'replace')
+
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+
+        self.wfile.write(body)
+
+    def show_user_main_page(self, user_id: str):
+        user_name = ''
+        for user in USERS:
+            if user['id'] == user_id:
+                user_name = user['name']
+                break
+
         today = datetime.datetime.today()
 
         # добавляем в наш HTML-код страницы пункт, указывающий, какая кодировка
@@ -219,7 +341,7 @@ class HelloWorldServer(BaseHTTPRequestHandler):
                     <meta charset="UTF-8">
                 </head>
                 <body>
-                    <h1 align='center'>Календарь</h1>
+                    <h1 align='center'>Календарь ({user_name})</h1>
             """
 
         html_page += '<center><table>'
@@ -229,7 +351,7 @@ class HelloWorldServer(BaseHTTPRequestHandler):
             html_page += '<tr>'
 
             for j in range(0, 4):
-                html_page += f"<td style='padding: 20px;'>{get_month_str(today.year, cur_month)}</td>"
+                html_page += f"<td style='padding: 20px;'>{get_month_str(user_id, today.year, cur_month)}</td>"
                 cur_month += 1
 
             html_page += '</tr>'
@@ -252,7 +374,15 @@ class HelloWorldServer(BaseHTTPRequestHandler):
 
         self.wfile.write(body)
 
-    def show_date_page(self, year: int, month: int, day: int):
+    def show_date_page(self, user_id: str, year: int, month: int, day: int):
+        user_name = ''
+        events = list()
+        for user in USERS:
+            if user['id'] == user_id:
+                user_name = user['name']
+                events = user['events']
+                break
+
         html_page = ''
 
         html_page += \
@@ -264,13 +394,14 @@ class HelloWorldServer(BaseHTTPRequestHandler):
                 </head>
                 <body>
                     <p><a href='/'>Главная</a></p>
-                    <h1 align='center'>{day:02}.{month:02}.{year:04}</h1>
+                    <p><a href='/{user_id}'>Календарь {user_name}</a></p>
+                    <h1 align='center'>{day:02}.{month:02}.{year:04} ({user_name})</h1>
             """
 
         html_page += '<center><table>'
 
         today_events = list()
-        for ev in EVENTS:
+        for ev in events:
             if ev['datetime'].year == year and ev['datetime'].month == month and ev['datetime'].day == day:
                 today_events.append(ev)
 
@@ -287,7 +418,7 @@ class HelloWorldServer(BaseHTTPRequestHandler):
                 """
 
             if event_name == '':
-                html_page += f"<a href='/{year:04}/{month:02}/{day:02}/{i:02}/book'>"
+                html_page += f"<a href='/{user_id}/{year:04}/{month:02}/{day:02}/{i:02}/book'>"
 
             html_page += f'{i:02}:00-{i + 1:02}:00'
 
@@ -319,7 +450,13 @@ class HelloWorldServer(BaseHTTPRequestHandler):
 
         self.wfile.write(body)
 
-    def show_book_slot_page(self, year: int, month: int, day: int, hour: int):
+    def show_book_slot_page(self, user_id: str, year: int, month: int, day: int, hour: int):
+        user_name = ''
+        for user in USERS:
+            if user['id'] == user_id:
+                user_name = user['name']
+                break
+
         html_page = ''
 
         html_page += \
@@ -331,7 +468,8 @@ class HelloWorldServer(BaseHTTPRequestHandler):
                 </head>
                 <body>
                     <p><a href='/'>Главная</a></p>
-                    <h1 align='center'>Добавить событие</h1>
+                    <p><a href='/{user_id}'>Календарь {user_name}</a></p>
+                    <h1 align='center'>Добавить событие ({user_name})</h1>
                     <p align='center'><b>Дата</b>: {day:02}.{month:02}.{year:04}
                     <p align='center'><b>Время</b>: {hour:02}:00-{hour + 1:02}:00
             """
@@ -343,25 +481,6 @@ class HelloWorldServer(BaseHTTPRequestHandler):
                     <label for="title">Название:</label><input type="text" id="title" name="title"><br>
                     <input type="submit" value="Добавить">
             """
-
-        # today_events = list()
-        # for ev in EVENTS:
-        #     if ev['datetime'].year == year and ev['datetime'].month == month and ev['datetime'].day == day:
-        #         today_events.append(ev)
-        #
-        # for i in range(9, 18):
-        #     event_name = ''
-        #     for ev in today_events:
-        #         if ev['datetime'].hour == i:
-        #             event_name = ev['title']
-        #
-        #     html_page += \
-        #         f"""
-        #         <tr>
-        #             <td>{i:02}:00-{i+1:02}:00</td>
-        #             <td>{event_name}</td>
-        #         </tr>
-        #         """
 
         html_page += \
             """
