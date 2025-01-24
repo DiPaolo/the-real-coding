@@ -263,6 +263,7 @@ class HelloWorldServer(BaseHTTPRequestHandler):
                     <meta charset="UTF-8">
                 </head>
                 <body>
+                    <p><a href='/'>Главная</a></p>
                     <h1 align='center'>{day:02}.{month:02}.{year:04}</h1>
             """
 
@@ -329,6 +330,7 @@ class HelloWorldServer(BaseHTTPRequestHandler):
                     <meta charset="UTF-8">
                 </head>
                 <body>
+                    <p><a href='/'>Главная</a></p>
                     <h1 align='center'>Добавить событие</h1>
                     <p align='center'><b>Дата</b>: {day:02}.{month:02}.{year:04}
                     <p align='center'><b>Время</b>: {hour:02}:00-{hour + 1:02}:00
