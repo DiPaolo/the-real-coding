@@ -1,5 +1,7 @@
 import datetime
+import random
 import re
+import string
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 
@@ -149,6 +151,16 @@ def get_days_in_month(year, month):
     else:
         return 30
 
+def add_user(name: str) -> str:
+    user_id = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(0, 8))
+    USERS.append({
+        'name': name,
+        'id': user_id,
+        'events': []
+    })
+
+    return user_id
+
 
 def book_slot(user_id: str, year: int, month: int, day: int, hour: int, title: str):
     for user in USERS:
@@ -254,6 +266,14 @@ class HelloWorldServer(BaseHTTPRequestHandler):
         parsed_path = urlparse(self.path)
         if parsed_path.path == '/':
             self.show_main_page()
+        elif parsed_path.path == '/add_user':
+            if parsed_path.query == '':
+                self.show_add_user_page()
+            else:
+                queries = parse_qs(parsed_path.query)
+                if 'name' in queries:
+                    user_id = add_user(queries['name'][0])
+                    self.show_user_main_page(user_id)
         else:
             res = re.match(r'^\/([\w|\d]{8})$', parsed_path.path)
             if res is not None and len(res.groups()) == 1:
@@ -360,6 +380,47 @@ class HelloWorldServer(BaseHTTPRequestHandler):
             """
 
                         </table>
+                    </center>
+                </body>
+            </html>
+            """
+
+        body = html_page.encode('UTF-8', 'replace')
+
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+
+        self.wfile.write(body)
+
+    def show_add_user_page(self):
+        html_page = ''
+
+        html_page += \
+            f"""
+            <html>
+                <head>
+                    <title>Hello, World!</title>
+                    <meta charset="UTF-8">
+                </head>
+                <body>
+                    <p><a href='/'>Главная</a></p>
+                    <h1 align='center'>Добавить пользователя</h1>
+            """
+
+        html_page += \
+            """
+            <center>
+                <form>
+                    <label for="title">Имя:</label><input type="text" id="name" name="name"><br>
+                    <input type="submit" value="Добавить">
+            """
+
+        html_page += \
+            """
+
+                        </form>
                     </center>
                 </body>
             </html>
