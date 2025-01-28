@@ -316,6 +316,13 @@ class HelloWorldServer(BaseHTTPRequestHandler):
                     <h1 align='center'>Календари</h1>
             """
 
+        html_page += \
+            f"""
+            <div align="center">
+                <a href='/add_user'>Добавить</a>
+            </div>
+            <br>
+            """
         html_page += '<div align="center">'
 
         for user in USERS:
